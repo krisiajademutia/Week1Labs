@@ -8,6 +8,14 @@ export default function AddTaskScreen() {
   const [tasks, setTasks] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [quote, setQuote] = useState("Loading today's motivation...");
+
+  useEffect(() => {
+    fetch('https://api.quotable.io/random')
+      .then((response) => response.json())
+      .then((data) => setQuote(data.content))
+      .catch(() => setQuote('Believe in yourself and get it done!'));
+  }, []);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -19,7 +27,7 @@ export default function AddTaskScreen() {
       } catch (error) {
         console.error('Failed to load tasks:', error);
       } finally {
-        setIsLoaded(true); // Mark initial load as complete
+        setIsLoaded(true);
       }
     };
 
@@ -27,7 +35,7 @@ export default function AddTaskScreen() {
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) return; // Prevent saving default/empty state on startup
+    if (!isLoaded) return;
 
     const saveTasks = async () => {
       try {
@@ -61,6 +69,16 @@ export default function AddTaskScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.quote}>💬 {quote}</Text>
+      <Button
+        title="New Quote"
+        onPress={() => {
+          fetch('https://api.quotable.io/random')
+            .then((response) => response.json())
+            .then((data) => setQuote(data.content))
+            .catch(() => setQuote('Believe in yourself and get it done!'));
+        }}
+      />
       <Text style={styles.heading}>Add a Task</Text>
       <Text>You have {tasks.length} task(s)</Text>
       <TextInput
@@ -107,4 +125,5 @@ const styles = StyleSheet.create({
   separator: { height: 8 },
   error: { color: '#B23A48', marginBottom: 10 },
   celebration: { fontSize: 16, fontWeight: 'bold', color: '#1E8A7A', textAlign: 'center', marginVertical: 12 },
+  quote: { fontStyle: 'italic', color: '#6B7280', marginBottom: 16, textAlign: 'center' },
 });
